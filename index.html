@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+  <title>Büble Bier AR — niño bailando</title>
+  <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
+  <style>
+    html, body {
+      margin: 0;
+      height: 100%;
+      overflow: hidden;
+      background: transparent;
+      color: white;
+      font-family: system-ui, Arial, sans-serif;
+    }
+    body { position: relative; }
+    #top {
+      position: fixed;
+      z-index: 20;
+      top: 0;
+      left: 0;
+      right: 0;
+      padding: 17px 15px;
+      text-align: center;
+      background: linear-gradient(#082116e8, #08211600);
+      pointer-events: none;
+    }
+    #top strong {
+      display: block;
+      font-size: 19px;
+      letter-spacing: .3px;
+    }
+    #status {
+      display: block;
+      font-size: 13px;
+      margin-top: 7px;
+    }
+    #bottom {
+      position: fixed;
+      z-index: 20;
+      bottom: 12px;
+      left: 12px;
+      right: 12px;
+      text-align: center;
+      font-size: 12px;
+      pointer-events: none;
+      text-shadow: 0 1px 3px black;
+    }
+    a-scene {
+      position: fixed;
+      inset: 0;
+      z-index: 10;
+    }
+    video {
+      z-index: 1 !important;
+      object-fit: cover;
+    }
+    canvas {
+      z-index: 5 !important;
+    }
+  </style>
+</head>
+<body>
+  <div id="top"><strong>🍺 Büble Bier AR</strong><span id="status">Permite la cámara y enfoca la etiqueta</span></div>
+  <div id="bottom">Fase 2 · animación de baile</div>
+
+  <a-scene
+    mindar-image="imageTargetSrc: ./assets/etiqueta.mind; autoStart: true; uiLoading: yes; uiScanning: yes; uiError: yes; filterMinCF: 0.0001; filterBeta: 0.001; warmupTolerance: 2; missTolerance: 4;"
+    color-space="sRGB"
+    renderer="colorManagement: true; physicallyCorrectLights: true; alpha: true"
+    vr-mode-ui="enabled: false"
+    device-orientation-permission-ui="enabled: false"
+    embedded>
+
+    <a-assets>
+      <img id="ninoBaila" src="./assets/nino_baila.png" crossorigin="anonymous">
+    </a-assets>
+
+    <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
+
+    <a-entity id="target" mindar-image-target="targetIndex: 0">
+      <!-- Grupo completo del niño bailando -->
+      <a-entity id="danceGroup" position="0 -0.05 0.03"
+                animation__sway="property: rotation; from: 0 0 -6; to: 0 0 6; dir: alternate; dur: 420; easing: easeInOutSine; loop: true"
+                animation__bob="property: position; from: 0 -0.05 0.03; to: 0 -0.015 0.03; dir: alternate; dur: 300; easing: easeInOutQuad; loop: true">
+
+        <a-image src="#ninoBaila" transparent="true" alpha-test="0.05"
+                 position="0 0 0"
+                 width="0.46" height="0.615"
+                 animation__squash="property: scale; from: 1 1 1; to: 1.04 0.97 1; dir: alternate; dur: 300; easing: easeInOutQuad; loop: true">
+        </a-image>
+      </a-entity>
+
+    </a-entity>
+  </a-scene>
+
+  <script>
+    const status = document.querySelector('#status');
+    const target = document.querySelector('#target');
+
+    target.addEventListener('targetFound', () => {
+      status.textContent = '✅ Etiqueta detectada: el niño está bailando';
+    });
+    target.addEventListener('targetLost', () => {
+      status.textContent = 'Etiqueta perdida: vuelve a enfocarla';
+    });
+    document.querySelector('a-scene').addEventListener('arError', () => {
+      status.textContent = 'No se pudo iniciar AR. Revisa cámara, HTTPS y archivo .mind.';
+    });
+  </script>
+</body>
+</html>
